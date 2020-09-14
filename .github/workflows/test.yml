@@ -8,12 +8,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        tls:
+          - ""
+          - tls
+          - native-tls
         feature:
+          - ""
+          - json
           - charset
           - cookies
           - socks-proxy
+        what:
+          - "--doc"
+          - "--tests"
+        exclude:
+          - tls: ""
+            what: "--doc"
     env:
       RUST_BACKTRACE: "1"
+      RUSTFLAGS: "-D dead_code -D unused-variables -D unused"
     steps:
       - uses: actions/checkout@master
       - name: Install Rust
@@ -25,7 +38,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --no-default-features --features "json tls ${{ matrix.feature }}"
+          args: ${{ matrix.what }} --no-default-features --features "${{ matrix.tls }} ${{ matrix.feature }}"
       - name: Docs
         uses: actions-rs/cargo@v1
         with:
